@@ -2,6 +2,8 @@
 try{
     session_start();
     require_once('db.php');
+    
+   
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
    
@@ -92,13 +94,32 @@ try{
        }else{
            $image_destination = "none";
        }
-        $field_supervisor = new FieldSupervisor($name, $email, $id_number, $position, $organization, $org_website, $password, $status, $image_tmpname, $image_destination);
-        $insert = $field_supervisor->insertFieldSupervisor($db, $profile_place_holder);
-        if($insert == 'success'){
-            header('Location: ../index.php?message=request successful');
+
+        /**
+         * send email containing field supervisor's details to the admin's email
+         */
+        $to = getAdminEmail($db);
+        $message1 = strtoupper($name).' who works with '.strtoupper($organization).' as the '.strtoupper($position).' with an id number of '.$id_number.' wants to become an internship field supervisor for some of your students';
+        $subject = 'Request for becoming an internship field supervisor';
+        $headers = 'FROM: Makerere Internship System';
+        $message = wordwrap($message1, 70, "\r\n");
+        $success = mail($to, $subject, $message, $headers);
+        if(!$success){
+            $error = error_get_last()['message'];
         }else{
-            header('Location: ../registe_field_supervisor.php?error=registeration failed');
+            $field_supervisor = new FieldSupervisor($name, $email, $id_number, $position, $organization, $org_website, $password, $status, $image_tmpname, $image_destination);
+            $insert = $field_supervisor->insertFieldSupervisor($db, $profile_place_holder);
+            if($insert == 'success'){
+                header('Location: ../index.php?message=request successful');
+            }else{
+                header('Location: ../registe_field_supervisor.php?error=registeration failed');
+            }
         }
+
+        if(isset($error)){
+            echo $error;
+        }
+       
     }
 
     if(isset($_POST['submit_supervisor'])){
@@ -157,7 +178,13 @@ try{
 
     if(isset($_POST['submit_student_to_supervise'])){
         $student_number = $_POST['Student_number'];
-        echo $student_number;
+        $supervisor_id = $_POST['supervisor_id'];
+        $supervise = allocateFieldSupervisor($db, $student_number, $supervisor_id);
+        if($supervise == 1){
+            header('Location: ../field/index.php?message=Student added sucessful');
+        }else{
+            header('Location: ../field/index.php?error='.$supervise);
+        }
     }
 
 }catch(Exception $e){

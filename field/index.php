@@ -43,7 +43,7 @@ if(isset($_SESSION['field_supervisor'])){
           </div>
     </nav>
     <div class="container">
-        <h1>Students You Are Supervising</h1>
+        <h1 class="text-center display-4">Students You Are Supervising</h1>
         <?php 
            $sql = 'SELECT * FROM student WHERE field_supervisor_id = :field_supervisor_id';
            $stmt = $db->prepare($sql);
@@ -56,7 +56,7 @@ if(isset($_SESSION['field_supervisor'])){
         <?php if($rows < 1){ ?>
             <div class="alert alert-danger">You are currently not Supervising any Student</div>
         <?php }else{ ?>
-        <table class="table">
+        <table class="table text-capitalize text-justify table-striped table-bordered table-hover">
              <thead>
                  <th>STUDENT NAME</th>
                  <th>STUDENT NUMBER</th>
@@ -70,7 +70,7 @@ if(isset($_SESSION['field_supervisor'])){
                     <td><?php echo $result['reg_number']; ?></td>
                     <td>
                         <?php if($result['assessment'] == 0){ ?>
-                            <a href="assess.php?id=<?php echo $result['id'] ?>" class="btn btn-scuccess">Asses Student</a>
+                            <a href="assess.php?id=<?php echo $result['id'] ?>" class="btn btn-success">Asses Student</a>
                         <?php }else{ ?>
                             <a href="viewassessment.php?id=<?php echo $result['id'] ?>" class="btn btn-primary">View Assessment</a>
                         <?php } ?>
@@ -96,6 +96,7 @@ if(isset($_SESSION['field_supervisor'])){
               <label>Student Number</label>
                <input type="text" class="form-control" name="Student_number">
              </div>
+             <input type="hidden" name="supervisor_id" value="<?php echo $user['id']; ?>">
              
              <button class="btn btn-success" type="submit" name="submit_student_to_supervise">Submit</button>
              </form>

@@ -243,3 +243,30 @@ function reject($id, $db){
     $result = $stmt->execute();
     return $result;
 }
+
+function allocateFieldSupervisor($db, $student_number, $supervisor_id){
+    $select = 'SELECT field_supervisor_id FROM student WHERE student_number = :student_number';
+    $stmt1 = $db->prepare($select);
+    $stmt1->bindParam('student_number', $student_number);
+    $stmt1->execute();
+    $results = $stmt1->fetchColumn();
+    if($results == 0){
+        $sql = 'UPDATE student SET field_supervisor_id = :field_supervisor_id WHERE student_number = :student_number';
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':field_supervisor_id', $supervisor_id);
+        $stmt->bindParam(':student_number', $student_number);
+        $result = $stmt->execute();
+        return $result;
+    }else{
+        return 'student already taken';
+    }
+   
+}
+
+function getAdminEmail($db){
+    $sql = 'SELECT email FROM admin';
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->fetchColumn();
+    return $result;
+}
